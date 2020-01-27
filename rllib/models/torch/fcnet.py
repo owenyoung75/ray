@@ -2,8 +2,7 @@ import logging
 import numpy as np
 
 from ray.rllib.models.torch.torch_modelv2 import TorchModelV2
-from ray.rllib.models.torch.misc import normc_initializer, SlimFC, \
-    _get_activation_fn
+from ray.rllib.models.torch.misc import normc_initializer, SlimFC, _get_activation_fn
 from ray.rllib.utils.annotations import override
 from ray.rllib.utils import try_import_torch
 
