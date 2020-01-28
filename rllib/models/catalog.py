@@ -107,8 +107,7 @@ class ModelCatalog:
     @staticmethod
     @DeveloperAPI
     def get_action_dist(
-        action_space, config, dist_type=None, torch=None,
-        framework="tf"
+        action_space, config, dist_type=None, torch=None, framework="tf",
     ):
         """
         Returns action distribution class and size for the given action space.
@@ -280,14 +279,12 @@ class ModelCatalog:
         """
 
         if model_config.get("custom_model"):
-            model_cls = _global_registry.get(RLLIB_MODEL,
-                                             model_config["custom_model"])
+            model_cls = _global_registry.get(RLLIB_MODEL, model_config["custom_model"])
+
             if issubclass(model_cls, ModelV2):
                 if framework == "tf":
-                    logger.info("Wrapping {} as {}".format(
-                        model_cls, model_interface))
-                    model_cls = ModelCatalog._wrap_if_needed(
-                        model_cls, model_interface)
+                    logger.info("Wrapping {} as {}".format(model_cls, model_interface))
+                    model_cls = ModelCatalog._wrap_if_needed(model_cls, model_interface)
                     created = set()
 
                     # Track and warn if vars were created but not registered
@@ -301,6 +298,7 @@ class ModelCatalog:
                                              num_outputs, model_config, name,
                                              **model_kwargs)
                     registered = set(instance.variables())
+
                     not_registered = set()
                     for var in created:
                         if var not in registered:

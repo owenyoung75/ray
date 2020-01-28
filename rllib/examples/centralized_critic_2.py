@@ -47,24 +47,21 @@ class CentralizedCriticModel(TFModelV2):
             obs_space, action_space, num_outputs, model_config, name)
 
         self.action_model = FullyConnectedNetwork(
-            Box(low=0, high=1, shape=(6, )),  # one-hot encoded Discrete(6)
+            Box(low=0, high=1, shape=(6,)),  # one-hot encoded Discrete(6)
             action_space,
             num_outputs,
             model_config,
-            name + "_action")
+            name+"_action",
+        )
         self.register_variables(self.action_model.variables())
 
         self.value_model = FullyConnectedNetwork(obs_space, action_space, 1,
-                                                 model_config, name + "_vf")
+                                                 model_config, name+"_vf",)
         self.register_variables(self.value_model.variables())
 
     def forward(self, input_dict, state, seq_lens):
-        self._value_out, _ = self.value_model({
-            "obs": input_dict["obs_flat"]
-        }, state, seq_lens)
-        return self.action_model({
-            "obs": input_dict["obs"]["own_obs"]
-        }, state, seq_lens)
+        self._value_out, _ = self.value_model({"obs": input_dict["obs_flat"]}, state, seq_lens)
+        return self.action_model({"obs": input_dict["obs"]["own_obs"]}, state, seq_lens)
 
     def value_function(self):
         return tf.reshape(self._value_out, [-1])
@@ -117,8 +114,7 @@ def fill_in_actions(info):
     # set the opponent actions into the observation
     _, opponent_batch = info["all_pre_batches"][other_id]
     opponent_actions = np.array([
-        action_encoder.transform(a)
-        for a in opponent_batch[SampleBatch.ACTIONS]
+        action_encoder.transform(a) for a in opponent_batch[SampleBatch.ACTIONS]
     ])
     to_update[:, -2:] = opponent_actions
 

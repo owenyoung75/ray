@@ -124,15 +124,12 @@ class AutoregressiveActionsModel(TFModelV2):
         super(AutoregressiveActionsModel, self).__init__(
             obs_space, action_space, num_outputs, model_config, name)
         if action_space != Tuple([Discrete(2), Discrete(2)]):
-            raise ValueError(
-                "This model only supports the [2, 2] action space")
+            raise ValueError("This model only supports the [2, 2] action space")
 
         # Inputs
-        obs_input = tf.keras.layers.Input(
-            shape=obs_space.shape, name="obs_input")
-        a1_input = tf.keras.layers.Input(shape=(1, ), name="a1_input")
-        ctx_input = tf.keras.layers.Input(
-            shape=(num_outputs, ), name="ctx_input")
+        obs_input = tf.keras.layers.Input(shape=obs_space.shape, name="obs_input")
+        a1_input  = tf.keras.layers.Input(shape=(1,), name="a1_input")
+        ctx_input = tf.keras.layers.Input(shape=(num_outputs,), name="ctx_input")
 
         # Output of the model (normally 'logits', but for an autoregressive
         # dist this is more like a context/feature layer encoding the obs)
@@ -140,37 +137,41 @@ class AutoregressiveActionsModel(TFModelV2):
             num_outputs,
             name="hidden",
             activation=tf.nn.tanh,
-            kernel_initializer=normc_initializer(1.0))(obs_input)
+            kernel_initializer=normc_initializer(1.0)
+        )(obs_input)
 
         # V(s)
         value_out = tf.keras.layers.Dense(
             1,
             name="value_out",
             activation=None,
-            kernel_initializer=normc_initializer(0.01))(context)
+            kernel_initializer=normc_initializer(0.01)
+        )(context)
 
         # P(a1 | obs)
         a1_logits = tf.keras.layers.Dense(
             2,
             name="a1_logits",
             activation=None,
-            kernel_initializer=normc_initializer(0.01))(ctx_input)
+            kernel_initializer=normc_initializer(0.01)
+        )(ctx_input)
 
         # P(a2 | a1)
         # --note: typically you'd want to implement P(a2 | a1, obs) as follows:
-        # a2_context = tf.keras.layers.Concatenate(axis=1)(
-        #     [ctx_input, a1_input])
+        # a2_context = tf.keras.layers.Concatenate(axis=1)([ctx_input, a1_input])
         a2_context = a1_input
         a2_hidden = tf.keras.layers.Dense(
             16,
             name="a2_hidden",
             activation=tf.nn.tanh,
-            kernel_initializer=normc_initializer(1.0))(a2_context)
+            kernel_initializer=normc_initializer(1.0)
+        )(a2_context)
         a2_logits = tf.keras.layers.Dense(
             2,
             name="a2_logits",
             activation=None,
-            kernel_initializer=normc_initializer(0.01))(a2_hidden)
+            kernel_initializer=normc_initializer(0.01)
+        )(a2_hidden)
 
         # Base layers
         self.base_model = tf.keras.Model(obs_input, [context, value_out])
