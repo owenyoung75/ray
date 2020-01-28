@@ -51,22 +51,33 @@ class CentralizedCriticModel(TFModelV2):
         super(CentralizedCriticModel, self).__init__(
             obs_space, action_space, num_outputs, model_config, name)
         # Base of the model
-        self.model = FullyConnectedNetwork(obs_space, action_space,
-                                           num_outputs, model_config, name)
+        self.model = FullyConnectedNetwork(
+            obs_space,
+            action_space,
+            num_outputs,
+            model_config,
+            name
+        )
         self.register_variables(self.model.variables())
 
         # Central VF maps (obs, opp_obs, opp_act) -> vf_pred
-        obs = tf.keras.layers.Input(shape=(6, ), name="obs")
-        opp_obs = tf.keras.layers.Input(shape=(6, ), name="opp_obs")
-        opp_act = tf.keras.layers.Input(shape=(2, ), name="opp_act")
-        concat_obs = tf.keras.layers.Concatenate(axis=1)(
-            [obs, opp_obs, opp_act])
+        obs = tf.keras.layers.Input(shape=(6,), name="obs")
+        opp_obs = tf.keras.layers.Input(shape=(6,), name="opp_obs")
+        opp_act = tf.keras.layers.Input(shape=(2,), name="opp_act")
+        concat_obs = tf.keras.layers.Concatenate(axis=1)([obs, opp_obs, opp_act])
+
         central_vf_dense = tf.keras.layers.Dense(
-            16, activation=tf.nn.tanh, name="c_vf_dense")(concat_obs)
+            16, activation=tf.nn.tanh, name="c_vf_dense",
+        )(concat_obs)
         central_vf_out = tf.keras.layers.Dense(
-            1, activation=None, name="c_vf_out")(central_vf_dense)
+            1, activation=None, name="c_vf_out",
+        )(central_vf_dense)
+
         self.central_vf = tf.keras.Model(
-            inputs=[obs, opp_obs, opp_act], outputs=central_vf_out)
+            inputs = [obs, opp_obs, opp_act],
+            outputs= central_vf_out,
+        )
+
         self.register_variables(self.central_vf.variables)
 
     def forward(self, input_dict, state, seq_lens):

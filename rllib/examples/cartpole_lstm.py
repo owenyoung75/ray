@@ -183,7 +183,8 @@ if __name__ == "__main__":
         args.run,
         stop={"episode_reward_mean": args.stop},
         config=dict(
-            configs[args.run], **{
+            configs[args.run],
+            **{
                 "env": "cartpole_stateless",
                 "model": {
                     "use_lstm": True,

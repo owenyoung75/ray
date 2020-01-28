@@ -29,7 +29,7 @@ parser.add_argument("--stop", type=int, default=100000)
 
 
 class CentralizedCriticModel(TFModelV2):
-    """Multi-agent model that implements a centralized VF.
+    """Multi-agent model that implements a centralized value-function.
 
     It assumes the observation is a dict with 'own_obs' and 'opponent_obs', the
     former of which can be used for computing actions (i.e., decentralized
@@ -41,8 +41,7 @@ class CentralizedCriticModel(TFModelV2):
       to compute the value (it does this by using the 'obs_flat' tensor).
     """
 
-    def __init__(self, obs_space, action_space, num_outputs, model_config,
-                 name):
+    def __init__(self, obs_space, action_space, num_outputs, model_config, name):
         super(CentralizedCriticModel, self).__init__(
             obs_space, action_space, num_outputs, model_config, name)
 
@@ -53,10 +52,16 @@ class CentralizedCriticModel(TFModelV2):
             model_config,
             name+"_action",
         )
-        self.register_variables(self.action_model.variables())
 
-        self.value_model = FullyConnectedNetwork(obs_space, action_space, 1,
-                                                 model_config, name+"_vf",)
+        self.value_model = FullyConnectedNetwork(
+            obs_space,
+            action_space,
+            1,
+            model_config,
+            name+"_valuef",
+        )
+
+        self.register_variables(self.action_model.variables())
         self.register_variables(self.value_model.variables())
 
     def forward(self, input_dict, state, seq_lens):
@@ -65,6 +70,7 @@ class CentralizedCriticModel(TFModelV2):
 
     def value_function(self):
         return tf.reshape(self._value_out, [-1])
+
 
 
 class GlobalObsTwoStepGame(MultiAgentEnv):

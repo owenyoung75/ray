@@ -165,15 +165,9 @@ def run_heuristic_vs_learned(use_lstm=False, trainer="PG"):
             "multiagent": {
                 "policies_to_train": ["learned"],
                 "policies": {
-                    "always_same": (AlwaysSameHeuristic, Discrete(3),
-                                    Discrete(3), {}),
-                    "beat_last": (BeatLastHeuristic, Discrete(3), Discrete(3),
-                                  {}),
-                    "learned": (None, Discrete(3), Discrete(3), {
-                        "model": {
-                            "use_lstm": use_lstm
-                        }
-                    }),
+                    "always_same": (AlwaysSameHeuristic, Discrete(3), Discrete(3), {}),
+                    "beat_last": (BeatLastHeuristic, Discrete(3), Discrete(3), {}),
+                    "learned": (None, Discrete(3), Discrete(3), {"model":{"use_lstm":use_lstm}}),
                 },
                 "policy_mapping_fn": select_policy,
             },
